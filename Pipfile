@@ -9,7 +9,10 @@ verify_ssl = true
 numpy = "*"
 pandas = "*"
 psycopg2-binary = "*"
-python-dotenv = "*"
+flask = "*"
+joblib = "*"
+scikit-learn = "==0.21.3"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"

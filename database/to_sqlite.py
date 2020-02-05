@@ -3,16 +3,23 @@ import sqlite3
 import psycopg2
 import pandas as pd
 from dotenv import load_dotenv
-import os
+# import os
 
 # Load .env file
 load_dotenv()
 
-# Create postgres connection
+DBNAME = 'avgjuepe'
+USER = 'avgjuepe'
+PASSWORD = 'jL7DS6RWICBdUOzl6MGWzGABiiVeKoE_'
+HOST = 'rajje.db.elephantsql.com'
+
+# Create postgres connection to Elephant SQL
+# pg_conn = psycopg2.connect(
+#     dbname=os.getenv("DBNAME"), user=os.getenv("USER"),
+#     password=os.getenv("PASSWORD"), host=os.getenv("HOST")
+#     )
 pg_conn = psycopg2.connect(
-    dbname=os.getenv("DBNAME"), user=os.getenv("USER"),
-    password=os.getenv("PASSWORD"), host=os.getenv("HOST")
-    )
+    dbname=DBNAME, user=USER, password=PASSWORD, host=HOST)
 pg_curs = pg_conn.cursor()
 
 
@@ -24,9 +31,8 @@ needed_columns = [
 
 
 # importing the dataset
-df = pd.read_csv('../Machine-Learning/final_df_percentsep.csv', sep='%')
+df = pd.read_csv('https://raw.githubusercontent.com/Med-Cabinet-BW/data-science/master/Machine-Learning/final_df_percentsep.csv', sep='%')
 
-# ('https://raw.githubusercontent.com/Med-Cabinet-BW/data-science/master/Machine-Learning/merged_df_index.csv')
 
 df_new = pd.DataFrame()
 
@@ -54,8 +60,12 @@ print('Conversion was successful!')
 query = """ SELECT * FROM strain_info; """
 strains_sql = sl_curs.execute(query).fetchall()
 
-# Create insert debugger
+# Insert debugger
 # import pdb; pdb.set_trace()
+
+# Drop table before recreating
+query = """DROP TABLE IF EXISTS strains;"""
+pg_curs.execute(query)
 
 # Create postgreSQL table
 create_strains_table = """
@@ -78,12 +88,13 @@ pg_conn.commit()
 for strain in strains_sql:
     insert_strain = """
     INSERT INTO strains
-    (index, name, flavors, race, positive_effects,
+    (name, flavors, race, positive_effects,
     negative_effects, medical_uses, rating, description)
-    VALUES """ + str(strain) + ";"
+    VALUES """ + str(strain[1:]) + ";"
     pg_curs.execute(insert_strain)
 
 # Commit changes
 pg_conn.commit()
+pg_conn.close()
 
 print('PostgreSQL table creation was successful!')
