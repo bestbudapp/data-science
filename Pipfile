@@ -13,6 +13,7 @@ python-dotenv = "*"
 spacy = "*"
 squarify = "*"
 scikit-learn = "==0.21.3"
+basilica = "*"
 
 [requires]
 python_version = "3.7"
